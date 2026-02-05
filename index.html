@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern American Canasta Scoring</title>
+    <style>
+        :root { --header-bg: #4472c4; --header-text: white; --input-bg: #ffffff; --total-bg: #2e5496; --total-text: #ffd700; --subtotal-bg: #d9e1f2; --negative-color: #ff4d4d; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f3f3f3; padding: 5px; margin: 0; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); border-radius: 8px; }
+        h1, .subtitle { text-align: center; }
+        h1 { color: #333; margin: 0; font-size: 1.4em; }
+        .subtitle { color: #666; margin-bottom: 8px; font-size: 0.8em; }
+        table { width: 100%; border-collapse: collapse; font-size: 11px; table-layout: fixed; }
+        th, td { border: 1px solid #c0c0c0; padding: 2px 1px; vertical-align: middle; text-align: center; }
+        th { background-color: var(--header-bg); color: var(--header-text); }
+        .col-item { width: 30%; text-align: left !important; }
+        td:first-child { text-align: left; font-weight: 500; color: #333; padding-left: 4px; }
+        input[type="number"] { width: 88%; padding: 1px; border: 1px solid #ccc; text-align: center; background-color: var(--input-bg); font-weight: bold; font-size: 11px; }
+        .no-steppers::-webkit-outer-spin-button, .no-steppers::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .no-steppers { -moz-appearance: textfield; }
+        input[type="checkbox"] { width: 14px; height: 14px; cursor: pointer; accent-color: var(--header-bg); margin: 0; }
+        .total-row { background-color: var(--subtotal-bg); font-weight: bold; color: #2e5496; }
+        .grand-total { background-color: var(--total-bg); height: 40px; border: 4px solid #ffd700; }
+        .grand-total td { color: #ffd700; font-size: 1.3em; font-weight: bold; }
+        .neg-val { color: var(--negative-color) !important; }
+        .reset-btn { display: block; margin: 8px auto; padding: 5px 15px; background-color: #cc0000; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 11px; }
+        .reference-guide { display: flex; flex-wrap: wrap; gap: 30px; margin-top: 10px; padding-top: 10px; border-top: 2px solid #eee; text-align: left; font-size: 0.8em; color: #444; }
+        .ref-section h3 { margin: 0 0 4px 0; color: var(--header-bg); font-size: 0.9em; border-bottom: 1px solid #ddd; }
+        .ref-table { border-collapse: collapse; width: auto; border: none; }
+        .ref-table td { border: none; padding: 0px 8px 0px 0; text-align: left; font-weight: normal; line-height: 1.1; }
+        .ref-table td:last-child { text-align: right; font-weight: bold; padding-right: 0; }
+        .ref-section p { margin: 1px 0; font-size: 0.8em; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Modern American Canasta Score Sheet</h1>
+    <div class="subtitle">Ultra-Compact | Dynamic Round Totals (Gold/Red) | 3 Teams</div>
+    <form id="scoreForm">
+        <table>
+            <colgroup><col class="col-item"><col style="width:7%"><col span="6"></colgroup>
+            <thead>
+                <tr><th rowspan="2">Item / Rule</th><th rowspan="2">Pts</th><th colspan="2">Team 1</th><th colspan="2">Team 2</th><th colspan="2">Team 3</th></tr>
+                <tr><th>Input</th><th>Points</th><th>Input</th><th>Points</th><th>Input</th><th>Points</th></tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+            <tfoot>
+                <tr class="total-row"><td colspan="2" style="text-align:right; padding-right:5px;">Base Count Total</td><td colspan="2" id="t1_base">0</td><td colspan="2" id="t2_base">0</td><td colspan="2" id="t3_base">0</td></tr>
+                <tr><td>Card Pts Remaining in Hand</td><td>-</td><td><input type="number" class="calc input-hand no-steppers" data-team="1"></td><td id="t1_h_out">0</td><td><input type="number" class="calc input-hand no-steppers" data-team="2"></td><td id="t2_h_out">0</td><td><input type="number" class="calc input-hand no-steppers" data-team="3"></td><td id="t3_h_out">0</td></tr>
+                <tr><td>Card Pts Melded & in Canastas (exclude 3s)</td><td>+/-</td><td><input type="number" class="calc input-melded no-steppers" data-team="1"></td><td id="t1_m_out">0</td><td><input type="number" class="calc input-melded no-steppers" data-team="2"></td><td id="t2_m_out">0</td><td><input type="number" class="calc input-melded no-steppers" data-team="3"></td><td id="t3_m_out">0</td></tr>
+                <tr class="total-row"><td colspan="2" style="text-align:right; padding-right:5px;">Card Count Total</td><td colspan="2" id="t1_card_tot">0</td><td colspan="2" id="t2_card_tot">0</td><td colspan="2" id="t3_card_tot">0</td></tr>
+                <tr class="grand-total"><td colspan="2" style="text-align:right; padding-right:5px;">ROUND TOTAL</td><td colspan="2" id="t1_final">0</td><td colspan="2" id="t2_final">0</td><td colspan="2" id="t3_final">0</td></tr>
+            </tfoot>
+        </table>
+        <button type="button" class="reset-btn" onclick="if(confirm('Reset all scores?')) { document.getElementById('scoreForm').reset(); calculate(); }">Reset Sheet</button>
+        <div class="reference-guide">
+            <div class="ref-section">
+                <h3>Card Points</h3>
+                <table class="ref-table">
+                    <tr><td>Jokers</td><td>50</td></tr>
+                    <tr><td>2s</td><td>20</td></tr>
+                    <tr><td>Aces</td><td>20</td></tr>
+                    <tr><td>Kings to 8s</td><td>10</td></tr>
+                    <tr><td>7s to 4s</td><td>5</td></tr>
+                </table>
+            </div>
+            <div class="ref-section">
+                <h3>Points to Open</h3>
+                <table class="ref-table">
+                    <tr><td>&lt;3,000</td><td>125</td></tr>
+                    <tr><td>3,000-4,995</td><td>155</td></tr>
+                    <tr><td>&gt;5,000</td><td>180</td></tr>
+                    <tr><td>Splash (Pure Canasta)</td><td>0</td></tr>
+                </table>
+                <p>+10 for each mismeld</p>
+                <p><strong>Base Meld: 5</strong> (Natural cards)</p>
+            </div>
+            <div class="ref-section">
+                <h3>3s Points</h3>
+                <p>NO canasta - subtract</p>
+                <table class="ref-table">
+                    <tr><td>1 Canasta</td><td>0</td></tr>
+                    <tr><td>2+ Canastas:</td><td></td></tr>
+                    <tr><td>1 Red/Black 3</td><td>100</td></tr>
+                    <tr><td>2 Red/Black 3s</td><td>300</td></tr>
+                    <tr><td>3 Red/Black 3s</td><td>500</td></tr>
+                    <tr><td>4 Red/Black 3s</td><td>1000</td></tr>
+                </table>
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+const rows = [
+    { n: "# Mixed Canasta", p: 300, type: "number", can: 1, min: 0 },
+    { n: "# Pure Canasta", p: 500, type: "number", can: 1, min: 0 },
+    { n: "Aces Natural Canasta", p: 2500, type: "checkbox", can: 1 },
+    { n: "Aces Meld NO Canasta", p: -2500, type: "checkbox" },
+    { n: "Aces 3 or more in your hand", p: -1500, type: "checkbox" },
+    { n: "7s Natural Canasta", p: 2500, type: "checkbox", can: 1 },
+    { n: "7s Meld NO Canasta", p: -2500, type: "checkbox" },
+    { n: "7s 3 or more in your hand", p: -1500, type: "checkbox" },
+    { n: "Wild Card Canasta 7 Twos", p: 3000, type: "checkbox", can: 1 },
+    { n: "Wild Card Canasta 4 Jokers & 3 Twos", p: 2500, type: "checkbox", can: 1 },
+    { n: "Wild Card Canasta any other combo", p: 2000, type: "checkbox", can: 1 },
+    { n: "Wild Card Meld NO Canasta", p: -2000, type: "checkbox" },
+    { n: "# Red 3s", p: "Var", type: "number", is3s: 'r', min: 0 },
+    { n: "# Black 3s", p: "Var", type: "number", is3s: 'b', min: 0 },
+    { n: "Going Out Bonus", p: 100, type: "checkbox" }
+];
+const tbody = document.getElementById('tableBody');
+rows.forEach((r, idx) => {
+    let tr = document.createElement('tr');
+    let pClass = (typeof r.p === 'number' && r.p < 0) ? 'class="neg-val"' : '';
+    tr.innerHTML = `<td>${r.n}</td><td ${pClass}>${r.p}</td>` + 
+        [1,2,3].map(t => `<td><input type="${r.type}" ${r.min===0?'min="0"':''} class="calc" data-team="${t}" data-idx="${idx}"></td><td id="t${t}_r${idx}_pts">0</td>`).join('');
+    tbody.appendChild(tr);
+});
+function upd(id, v) { 
+    const el = document.getElementById(id); if(!el) return; 
+    el.textContent = v; v < 0 ? el.classList.add('neg-val') : el.classList.remove('neg-val'); 
+}
+function calculate() {
+    [1,2,3].forEach(t => {
+        let base = 0, count = 0, r3 = 0, b3 = 0;
+        rows.forEach((r, idx) => {
+            const input = document.querySelector(`input[data-team="${t}"][data-idx="${idx}"]`);
+            if (r.is3s) { r.is3s === 'r' ? r3 = parseInt(input.value)||0 : b3 = parseInt(input.value)||0; return; }
+            let val = r.type === "number" ? parseInt(input.value)||0 : (input.checked ? 1 : 0);
+            let pts = val * (typeof r.p === 'number' ? r.p : 0);
+            if (r.can) count += val;
+            upd(`t${t}_r${idx}_pts`, pts); base += pts;
+        });
+        [r3, b3].forEach((v, i) => {
+            let p = [0, 100, 300, 500, 1000][Math.min(v, 4)] || 0;
+            let final = (count === 1) ? 0 : (count >= 2 ? p : -p);
+            upd(`t${t}_r${i === 0 ? 12 : 13}_pts`, v === 0 ? 0 : final); base += (v === 0 ? 0 : final);
+        });
+        upd(`t${t}_base`, base);
+        let h = parseInt(document.querySelector(`.input-hand[data-team="${t}"]`).value)||0;
+        let m = parseInt(document.querySelector(`.input-melded[data-team="${t}"]`).value)||0;
+        let mPts = count === 0 ? -m : m;
+        upd(`t${t}_h_out`, -h); upd(`t${t}_m_out`, mPts); upd(`t${t}_card_tot`, mPts - h);
+        upd(`t${t}_final`, base + (mPts - h));
+    });
+}
+document.querySelectorAll('.calc').forEach(el => el.addEventListener('input', calculate));
+</script>
+</body>
+</html>
