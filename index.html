@@ -14,19 +14,13 @@
         table { width: 100%; border-collapse: collapse; font-size: 11px; table-layout: fixed; }
         th, td { border: 1px solid #c0c0c0; padding: 2px 1px; vertical-align: middle; text-align: center; }
         th { background-color: var(--header-bg); color: var(--header-text); }
-        
-        /* Adjusted column widths to prevent button overlap */
-        .col-item { width: 25%; text-align: left !important; }
-        .col-pts { width: 6%; }
-        .col-team-input { width: 14%; }
-        .col-team-pts { width: 9%; }
-
+        .col-item { width: 30%; text-align: left !important; }
         td:first-child { text-align: left; font-weight: 500; color: #333; padding-left: 4px; }
         
         .input-group { display: flex; align-items: center; justify-content: center; gap: 1px; }
-        .step-btn { width: 18px; height: 18px; border: 1px solid #ccc; background: #eee; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 2px; -webkit-appearance: none; flex-shrink: 0; }
+        .step-btn { width: 18px; height: 18px; border: 1px solid #ccc; background: #eee; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 2px; -webkit-appearance: none; }
         
-        input[type="number"] { width: 28px; padding: 1px; border: 1px solid #ccc; text-align: center; background-color: var(--input-bg); font-weight: bold; font-size: 11px; -moz-appearance: textfield; }
+        input[type="number"] { width: 30px; padding: 1px; border: 1px solid #ccc; text-align: center; background-color: var(--input-bg); font-weight: bold; font-size: 11px; -moz-appearance: textfield; }
         input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .no-btns { width: 45px !important; }
         
@@ -51,13 +45,7 @@
     <div class="subtitle">Ultra-Compact | 3 Teams | Fixed Wording & Reference Guide</div>
     <form id="scoreForm">
         <table>
-            <colgroup>
-                <col class="col-item">
-                <col class="col-pts">
-                <col class="col-team-input"><col class="col-team-pts">
-                <col class="col-team-input"><col class="col-team-pts">
-                <col class="col-team-input"><col class="col-team-pts">
-            </colgroup>
+            <colgroup><col class="col-item"><col style="width:7%"><col span="6"></colgroup>
             <thead>
                 <tr><th rowspan="2">Item / Rule</th><th rowspan="2">Pts</th><th colspan="2">Team 1</th><th colspan="2">Team 2</th><th colspan="2">Team 3</th></tr>
                 <tr><th>Input</th><th>Points</th><th>Input</th><th>Points</th><th>Input</th><th>Points</th></tr>
